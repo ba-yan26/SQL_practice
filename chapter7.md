@@ -46,10 +46,45 @@ from 家計簿集計
 where 費目 in(select distinct 費目 from 家計簿)
 ```
 
-- anu/all演算子で利用する例
+- any/all演算子で利用する例
 ```
 select *
 from 家計簿
 where 費目 = '食費'
 and 出金額 < any(select 出金額 from 家計簿アーカイブ where 費目 = '食費')
 ```
+- 副お問い合わせの結果から確実にnullを除外する方法
+```
+select * from 家計簿アーカイブ
+where 費目 in(select 費目 from 家計簿 where 費目 is not null)
+```
+`nullを除外する条件を付加した`
+
+```
+select * from 家計簿アーカイブ
+where 費目 in(select coalesce(費目, '不明') from 家計簿)
+```
+`費目がnullなら不明にする`
+
+-from句で利用する例
+```
+select sum(sub.出金額) as 出金額合計
+from (select 日付, 費目, 出金額
+      from 家計簿
+      union
+      select 日付, 費目, 出金額
+      from 家計簿アーカイブ
+      where 日付 >= '2022-01-01'
+      and 日付 <= '2022-01-31') as sub
+```
+
+- insert文で利用する例
+  - insert文は基本的に、1回の呼び出しで1行しか取り出せないが副お問い合わせを使えば1回のinsertで複数行のデータを登録することが可能
+```
+insert into 家計簿集計(費目, 合計, 平均, 回数)
+select 費目, sum(出金額), avg(出金額), 0
+from 家計簿
+where 出金額 > 0
+group by 費目
+```
+`本来valueで記述するところをselectで記述することでselectの検索結果がそのままテーブルに登録すべき値として処理される`
