@@ -114,10 +114,16 @@ create table テーブル名
   ```
 
 
-  #### 
+  #### 練習問題
+  3. 第３問
+  ```
   create table 学生
     学籍番号 integer primary key,
     名前 varchar(30) not null
     生年月日 date not null
-    血液型 char(2) 
+    血液型 char(2) check (
+      血液型 in ('A', 'B', 'O', 'AB')or
+      血液型 is null
+    ),
     学部ID char(1) references 学部(id)
+  ```
