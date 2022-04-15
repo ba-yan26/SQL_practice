@@ -78,3 +78,46 @@ create table テーブル名
   列名 型名 primary key, ←主キー制約
   列名 varchar(40) unique
 ```
+
+- 主キー制約の指定(2,複合主キー)
+```
+create table テーブル名
+  列名 integer,
+  列名 varchar(40) unique,
+  primary key(列名, 列名)
+```
+
+#### 外部キーと参照整合性
+- 外部キーが指し示す先にきちんと行が存在してリレーションシップが成立していることを参照整合性という
+- 参照整合性の崩壊を引き起こすデータ操作
+  1. 他の行から参照されている行を削除してしまう
+  2. 他の行から参照されている行の主キーを変更してしまう
+  3. 存在しない行を参照する行を追加してしまう
+  4. 存在しない行を参照する行に更新してしまう
+
+
+- 外部キー制約：参照整合性が崩れるようなデータ操作をしようとした場合にエラーを発生させ、強制的に処理を中断させる制約
+  - 外部キー制約の指定
+  ```
+  create table テーブル名 (
+    列名 型 references 参照先テーブル名(参照先列名)
+  )
+  ```
+  -  例(家計簿テーブル)
+  ```
+  create table 家計簿
+    日付 date not null,
+    費目id integer references 費目(id),
+    メモ varchar(100) default '不明' not null,
+    入金額 integer default 0 check(入金額 >= 0),
+    出金額 integer default 0 check(出金額 >= 0)
+  ```
+
+
+  #### 
+  create table 学生
+    学籍番号 integer primary key,
+    名前 varchar(30) not null
+    生年月日 date not null
+    血液型 char(2) 
+    学部ID char(1) references 学部(id)
